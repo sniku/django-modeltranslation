@@ -109,7 +109,10 @@ class Command(BaseCommand):
         for lang in missing_langs:
             new_field = build_localized_fieldname(field_name, lang)
             f = model._meta.get_field(new_field)
-            col_type = f.db_type()
+            try:
+                col_type = f.db_type()
+            except TypeError:
+                col_type = f.db_type(connection)
             field_sql = [style.SQL_FIELD(qn(f.column)), style.SQL_COLTYPE(col_type)]
             # column creation
             sql_output.append("ALTER TABLE %s ADD COLUMN %s;" % (qn(db_table), ' '.join(field_sql)))
